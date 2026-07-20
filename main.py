@@ -44,7 +44,7 @@ def load_documents_from_directory(directory_path):
     print("====== Loading document from directory ======")
     documents = []
     for filename in os.listdir(directory_path):
-        if filename.endswith(".pdf"):
+        if filename.endswith(".txt"):
             with open(
                 os.path.join(directory_path, filename), "r", encoding="utf-8"
             ) as file:
@@ -66,5 +66,41 @@ directory_path = "./card_details"
 documents = load_documents_from_directory(directory_path)
 print(f"Loaded {len(documents)} documents")
 
-# response = ask_ollama("How much points are offered for this card?")
-# print(response)
+def chunked_documents(documents): 
+    chunked_documents_array = []
+
+    for doc in documents:
+        chunks = split_text(doc["text"])
+        print("==== Split text into chunks ====")
+        for i, chunk in enumerate(chunks): 
+            chunked_documents_array.append({"id": f"{doc['id']}_chunk{i+1}", "text": chunk})
+
+    return chunked_documents_array
+
+    # print(len(chunked_documents))
+
+# print(f"Split documents into {chunked_documents(documents)} chunks")
+
+def get_embedding(text): 
+    payload = {
+        "model": "qwen3-embedding:4b",
+        "input": text,
+    }
+
+    request = urllib.request.Request(
+        "http://localhost:11434/api/embeddings",
+        data=json.dumps(payload).encode("utf-8"),
+        headers={"Content-Type": "application/json"},
+    )
+
+    with urllib.request.urlopen(request, timeout=60) as response:
+        result = json.load(response)
+
+    return result["embedding"]
+
+
+processed_chunks = chunked_documents(documents)
+for doc in processed_chunks:
+    print("===== Generating embedding ====")
+    doc["embedding"] = get_embedding(doc["text"])
+    print(f"Generated embedding for {doc['id']}:", doc["embedding"])

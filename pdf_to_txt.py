@@ -12,7 +12,7 @@ def pdf_to_txt(file_path):
 text = pdf_to_txt("./card_details/Pricing and Terms.pdf")
 
 def save_text_in_txt(): 
-    output_path = "./card_details/Terms.txt"
+    output_path = "./card_details/Pricing and Terms.txt"
     with open(output_path, "w", encoding="utf-8") as text_file: 
         text_file.write(text)
 
