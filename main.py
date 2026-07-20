@@ -100,7 +100,19 @@ def get_embedding(text):
 
 
 processed_chunks = chunked_documents(documents)
-for doc in processed_chunks:
-    print("===== Generating embedding ====")
-    doc["embedding"] = get_embedding(doc["text"])
-    print(f"Generated embedding for {doc['id']}:", doc["embedding"])
+
+
+def generate_embedding(processed_chunks): 
+    for doc in processed_chunks:
+        print("===== Generating embedding ====")
+        doc["embedding"] = get_embedding(doc["text"])
+        print(f"Generated embedding for {doc['id']}", doc["embedding"])
+
+
+def save_embedding_to_db(processed_chunks):
+    for doc in processed_chunks:
+        print("===== Inserting chunks into db ====")
+        collection.add(ids=[doc["id"]], documents=[doc["text"]])
+
+
+save_embedding_to_db(processed_chunks)
