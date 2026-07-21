@@ -1,10 +1,10 @@
 import json
 import os
 import urllib.request
-
 from dotenv import load_dotenv
 import chromadb
 from chromadb.utils import embedding_functions
+import ollama
 
 
 load_dotenv()
@@ -81,22 +81,8 @@ def chunked_documents(documents):
 
 # print(f"Split documents into {chunked_documents(documents)} chunks")
 
-def get_embedding(text): 
-    payload = {
-        "model": "qwen3-embedding:4b",
-        "input": text,
-    }
-
-    request = urllib.request.Request(
-        "http://localhost:11434/api/embeddings",
-        data=json.dumps(payload).encode("utf-8"),
-        headers={"Content-Type": "application/json"},
-    )
-
-    with urllib.request.urlopen(request, timeout=60) as response:
-        result = json.load(response)
-
-    return result["embedding"]
+def get_embedding(text):
+    return ollama_ef([text])[0]
 
 
 processed_chunks = chunked_documents(documents)
@@ -110,9 +96,47 @@ def generate_embedding(processed_chunks):
 
 
 def save_embedding_to_db(processed_chunks):
+    ids = []
+    documents = []
+    embeddings = []
+
     for doc in processed_chunks:
         print("===== Inserting chunks into db ====")
-        collection.add(ids=[doc["id"]], documents=[doc["text"]])
+        ids.append(doc["id"])
+        documents.append(doc["text"])
+        embeddings.append(get_embedding(doc["text"]))
+
+    collection.upsert(ids=ids, documents=documents, embeddings=embeddings)
 
 
-save_embedding_to_db(processed_chunks)
+def query_documents(question, n_result=2): 
+    result = collection.query(query_texts=question, n_results=n_result)
+    relevant_chunks = [doc for sublist in result["documents"] for doc in sublist]
+    print("==== Returning relevant chunks ====")
+    return relevant_chunks
+
+def generate_response(question, relevant_chunks):
+    context = "\n\n".join(relevant_chunks)
+    prompt = (
+        "You are an assistant for question-answering tasks. Use the following pieces of "
+        "retrieved context to answer the question. If you don't know the answer, say that you "
+        "don't know. Use three sentences maximum and keep the answer concise."
+        "\n\nContext:\n" + context + "\n\nQuestion:\n" + question
+    )
+
+    response = ollama.chat(
+        model="qwen3:8b",
+        messages=[
+            {"role": "system", "content": prompt},
+            {"role": "user", "content": question},
+        ],
+    )
+
+    return response["message"]["content"]
+
+
+question = "How many points are offered for this credit card?"
+relevant_chunks = query_documents(question)
+answer = generate_response(question, relevant_chunks)
+
+print(answer)
