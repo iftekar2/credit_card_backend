@@ -39,10 +39,3 @@ def generate_response(question, relevant_chunks):
     )
 
     return response["message"]["content"]
-
-
-question = "How many points are offered for this credit card?"
-relevant_chunks = query_documents(question)
-answer = generate_response(question, relevant_chunks)
-
-print(answer)
