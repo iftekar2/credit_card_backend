@@ -7,7 +7,7 @@ from chromadb.utils import embedding_functions
 import ollama
 
 
-load_dotenv()
+# load_dotenv()
 
 ollama_ef = embedding_functions.OllamaEmbeddingFunction(
     url="http://localhost:11434",
@@ -22,91 +22,91 @@ collection = chroma_client.get_or_create_collection(
 )
 
 
-def ask_ollama(prompt: str, model: str = "qwen3:8b") -> str:
-    payload = {
-        "model": model,
-        "prompt": prompt,
-        "stream": False,
-    }
+# def ask_ollama(prompt: str, model: str = "qwen3:8b") -> str:
+#     payload = {
+#         "model": model,
+#         "prompt": prompt,
+#         "stream": False,
+#     }
 
-    request = urllib.request.Request(
-        "http://localhost:11434/api/generate",
-        data=json.dumps(payload).encode("utf-8"),
-        headers={"Content-Type": "application/json"},
-    )
+#     request = urllib.request.Request(
+#         "http://localhost:11434/api/generate",
+#         data=json.dumps(payload).encode("utf-8"),
+#         headers={"Content-Type": "application/json"},
+#     )
 
-    with urllib.request.urlopen(request, timeout=60) as response:
-        result = json.load(response)
+#     with urllib.request.urlopen(request, timeout=60) as response:
+#         result = json.load(response)
 
-    return result["response"].strip()
+#     return result["response"].strip()
 
-def load_documents_from_directory(directory_path): 
-    print("====== Loading document from directory ======")
-    documents = []
-    for filename in os.listdir(directory_path):
-        if filename.endswith(".txt"):
-            with open(
-                os.path.join(directory_path, filename), "r", encoding="utf-8"
-            ) as file:
-                documents.append({"id": filename, "text": file.read()})
-    return documents
+# def load_documents_from_directory(directory_path): 
+#     print("====== Loading document from directory ======")
+#     documents = []
+#     for filename in os.listdir(directory_path):
+#         if filename.endswith(".txt"):
+#             with open(
+#                 os.path.join(directory_path, filename), "r", encoding="utf-8"
+#             ) as file:
+#                 documents.append({"id": filename, "text": file.read()})
+#     return documents
 
-def split_text(text, chunk_size=1000, chunk_overlap=20): 
-    chunks = []
-    start = 0
+# def split_text(text, chunk_size=1000, chunk_overlap=20): 
+#     chunks = []
+#     start = 0
 
-    while start < len(text): 
-        end = start + chunk_size
-        chunks.append(text[start:end])
-        start = end - chunk_overlap
-    return chunks
-
-
-directory_path = "./card_details"
-documents = load_documents_from_directory(directory_path)
-print(f"Loaded {len(documents)} documents")
-
-def chunked_documents(documents): 
-    chunked_documents_array = []
-
-    for doc in documents:
-        chunks = split_text(doc["text"])
-        print("==== Split text into chunks ====")
-        for i, chunk in enumerate(chunks): 
-            chunked_documents_array.append({"id": f"{doc['id']}_chunk{i+1}", "text": chunk})
-
-    return chunked_documents_array
-
-    # print(len(chunked_documents))
-
-# print(f"Split documents into {chunked_documents(documents)} chunks")
-
-def get_embedding(text):
-    return ollama_ef([text])[0]
+#     while start < len(text): 
+#         end = start + chunk_size
+#         chunks.append(text[start:end])
+#         start = end - chunk_overlap
+#     return chunks
 
 
-processed_chunks = chunked_documents(documents)
+# directory_path = "./card_details"
+# documents = load_documents_from_directory(directory_path)
+# print(f"Loaded {len(documents)} documents")
+
+# def chunked_documents(documents): 
+#     chunked_documents_array = []
+
+#     for doc in documents:
+#         chunks = split_text(doc["text"])
+#         print("==== Split text into chunks ====")
+#         for i, chunk in enumerate(chunks): 
+#             chunked_documents_array.append({"id": f"{doc['id']}_chunk{i+1}", "text": chunk})
+
+#     return chunked_documents_array
+
+#     # print(len(chunked_documents))
+
+# # print(f"Split documents into {chunked_documents(documents)} chunks")
+
+# def get_embedding(text):
+#     return ollama_ef([text])[0]
 
 
-def generate_embedding(processed_chunks): 
-    for doc in processed_chunks:
-        print("===== Generating embedding ====")
-        doc["embedding"] = get_embedding(doc["text"])
-        print(f"Generated embedding for {doc['id']}", doc["embedding"])
+# processed_chunks = chunked_documents(documents)
 
 
-def save_embedding_to_db(processed_chunks):
-    ids = []
-    documents = []
-    embeddings = []
+# def generate_embedding(processed_chunks): 
+#     for doc in processed_chunks:
+#         print("===== Generating embedding ====")
+#         doc["embedding"] = get_embedding(doc["text"])
+#         print(f"Generated embedding for {doc['id']}", doc["embedding"])
 
-    for doc in processed_chunks:
-        print("===== Inserting chunks into db ====")
-        ids.append(doc["id"])
-        documents.append(doc["text"])
-        embeddings.append(get_embedding(doc["text"]))
 
-    collection.upsert(ids=ids, documents=documents, embeddings=embeddings)
+# def save_embedding_to_db(processed_chunks):
+#     ids = []
+#     documents = []
+#     embeddings = []
+
+#     for doc in processed_chunks:
+#         print("===== Inserting chunks into db ====")
+#         ids.append(doc["id"])
+#         documents.append(doc["text"])
+#         embeddings.append(get_embedding(doc["text"]))
+
+#     collection.upsert(ids=ids, documents=documents, embeddings=embeddings)
 
 
 def query_documents(question, n_result=2): 
