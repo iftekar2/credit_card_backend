@@ -54,7 +54,7 @@ def chunked_documents(documents):
 
     return chunked_documents_array
 
-    # print(len(chunked_documents))
+#     print(len(chunked_documents))
 
 # print(f"Split documents into {chunked_documents(documents)} chunks")
 

@@ -1,6 +1,7 @@
 import chromadb
 from chromadb.utils import embedding_functions
 import ollama
+import json
 
 
 ollama_ef = embedding_functions.OllamaEmbeddingFunction(
@@ -24,10 +25,21 @@ def query_documents(question, n_result=2):
 def generate_response(question, relevant_chunks):
     context = "\n\n".join(relevant_chunks)
     prompt = (
-        "You are an assistant for question-answering tasks. Use the following pieces of "
-        "retrieved context to answer the question. If you don't know the answer, say that you "
-        "don't know. Use three sentences maximum and keep the answer concise."
-        "\n\nContext:\n" + context + "\n\nQuestion:\n" + question
+        "You are an information extraction assistant. Extract credit card details "
+        "from the provided context and respond ONLY with a valid JSON object. "
+        "Do not include any explanation or extra text outside the JSON.\n\n"
+        "Use the following keys:\n"
+        '- "card_name": string or null\n'
+        '- "issuer": string or null\n'
+        '- "card_type": string or null\n'
+        '- "annual_fee": number or null\n'
+        '- "credit_score_min": number or null\n'
+        '- "credit_score_max": number or null\n'
+        '- "signup_bonus_value": string or null\n'
+        '- "signup_bonus_requirements": string or null\n'
+        '- "reward_categories": array of objects [{"category": str, "multiplier": float}] or null\n'
+        '- "perks": array of strings or null\n\n'
+        "Context:\n" + context
     )
 
     response = ollama.chat(
@@ -36,6 +48,7 @@ def generate_response(question, relevant_chunks):
             {"role": "system", "content": prompt},
             {"role": "user", "content": question},
         ],
+        format="json"
     )
 
     return response["message"]["content"]
