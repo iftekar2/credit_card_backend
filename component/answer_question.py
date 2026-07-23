@@ -24,22 +24,25 @@ def query_documents(question, n_result=2):
 
 def generate_response(question, relevant_chunks):
     context = "\n\n".join(relevant_chunks)
+
     prompt = (
-        "You are an information extraction assistant. Extract credit card details "
-        "from the provided context and respond ONLY with a valid JSON object. "
-        "Do not include any explanation or extra text outside the JSON.\n\n"
-        "Use the following keys:\n"
-        '- "card_name": string or null\n'
-        '- "issuer": string or null\n'
-        '- "card_type": string or null\n'
-        '- "annual_fee": number or null\n'
+        "You are a structured data extraction model. Extract credit card details "
+        "from the context into a single JSON object. Output strictly JSON.\n\n"
+        "KEYS & EXPECTED FORMATS:\n"
+        '- "card_name": string\n'
+        '- "issuer": string\n'
+        '- "card_type": string\n'
+        '- "annual_fee": number\n'
         '- "credit_score_min": number or null\n'
         '- "credit_score_max": number or null\n'
-        '- "signup_bonus_value": string or null\n'
-        '- "signup_bonus_requirements": string or null\n'
-        '- "reward_categories": array of objects [{"category": str, "multiplier": float}] or null\n'
-        '- "perks": array of strings or null\n\n'
-        "Context:\n" + context
+        '- "signup_bonus_value": string\n'
+        '- "signup_bonus_requirements": string\n'
+        '- "reward_categories": array of objects [{"category": str, "multiplier": float}]\n'
+        '- "perks": array of strings (e.g., ["No foreign transaction fees", "Trip Cancellation Insurance", "$100 Hotel Credit"]). NEVER return null for perks; if none found, return [].\n\n'
+        "Rules:\n"
+        "1. Look thoroughly through the context for travel protections, credits, insurance, and partner benefits.\n"
+        "2. Do not invent details not present in context.\n\n"
+        f"Context:\n{context}"
     )
 
     response = ollama.chat(
@@ -48,7 +51,7 @@ def generate_response(question, relevant_chunks):
             {"role": "system", "content": prompt},
             {"role": "user", "content": question},
         ],
-        format="json"
+        format="json",
     )
 
     return response["message"]["content"]
