@@ -13,7 +13,7 @@ supabase = create_client(
 )
 
 
-def save_data_to_database(card_data: dict, table_name: str = "embedded_data"): 
+def save_data_to_database(card_data: dict, table_name: str = "credit_cards"): 
     payload = {
         "card_name": card_data.get("card_name"),
         "issuer": card_data.get("issuer"),
@@ -61,7 +61,7 @@ def main():
         )
         print(f"Perks:         {card_data.get('perks')}")
 
-        save_data_to_database(card_data, table_name="embedded_data")
+        save_data_to_database(card_data, table_name="credit_cards")
 
     except json.JSONDecodeError:
         print("Failed to parse response as JSON. Raw output was:")

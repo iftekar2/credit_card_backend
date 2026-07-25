@@ -68,21 +68,16 @@ def generate_embedding(processed_chunks):
         print(f"Generated embedding for {doc['id']}")
 
 
-def save_chunks_to_supabase(
-    processed_chunks, table_name="embedded_data", batch_size=25
-):
+def save_chunks_to_supabase(processed_chunks, card_id: str, table_name="card_chunks", batch_size=25):
     records_to_insert = []
 
     for doc in processed_chunks:
         raw_text = doc["text"]
-        card_name = doc.get("card_name", "Unknown")
-
-        print(f"Generating embedding for chunk: {doc['id']}")
         embedding_vector = get_embedding(raw_text)
 
         records_to_insert.append(
             {
-                "card_name": card_name,
+                "card_id": card_id,
                 "raw_text": raw_text,
                 "embedding": embedding_vector,
             }
@@ -92,22 +87,56 @@ def save_chunks_to_supabase(
         f"\n====== Uploading {len(records_to_insert)} records to Supabase in batches of {batch_size} ======"
     )
 
-    # Split records_to_insert into smaller batches
     for i in range(0, len(records_to_insert), batch_size):
         batch = records_to_insert[i : i + batch_size]
-        try:
-            supabase.table(table_name).insert(batch).execute()
-            print(
-                f" Successfully inserted batch {i // batch_size + 1} ({len(batch)} records)"
-            )
-        except Exception as e:
-            print(f" Error saving batch {i // batch_size + 1} to Supabase: {e}")
-            # Optional: Add retry logic here if needed
+        supabase.table(table_name).insert(batch).execute()
 
 
-# --- Execution Flow ---
+def get_or_create_card_id(card_name: str, issuer: str = "Unknown") -> str | None:
+
+    try:
+        response = (
+            supabase.table("credit_cards")
+            .select("id")
+            .eq("card_name", card_name)
+            .execute()
+        )
+
+        if response.data and len(response.data) > 0:
+            card_id = response.data[0]["id"]
+            print(f" Found existing card_id for '{card_name}': {card_id}")
+            return card_id
+
+        print(f" Creating new card entry for '{card_name}'...")
+        insert_res = (
+            supabase.table("credit_cards")
+            .insert({"card_name": card_name, "issuer": issuer})
+            .execute()
+        )
+
+        card_id = insert_res.data[0]["id"]
+        print(f" Created new card_id: {card_id}")
+        return card_id
+
+    except Exception as e:
+        print(f" Error fetching/creating card_id: {e}")
+        return None
+
+
 if __name__ == "__main__":
     directory_path = "./card_details"
+
     documents = load_documents_from_directory(directory_path)
     processed_chunks = chunked_documents(documents)
-    save_chunks_to_supabase(processed_chunks, table_name="embedded_data")
+
+    card_name = "CHASE SAPPHIRE PREFERRED CREDIT CARD"
+    card_id = get_or_create_card_id(card_name=card_name, issuer="Chase")
+
+    if card_id:
+        save_chunks_to_supabase(
+            processed_chunks=processed_chunks,
+            card_id=card_id,
+            table_name="card_chunks",
+        )
+    else:
+        print("Failed to get or create card_id.")
