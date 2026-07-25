@@ -1,27 +1,55 @@
-import chromadb
 from chromadb.utils import embedding_functions
 import ollama
-import json
 import re
+from dotenv import load_dotenv
+from supabase import create_client
+import os
+from component.generate_embedding import get_embedding
 
+
+load_dotenv()
+
+supabase = create_client(
+    os.environ["SUPABASE_URL"],
+    os.environ["SUPABASE_ANON_KEY"],
+)
 
 ollama_ef = embedding_functions.OllamaEmbeddingFunction(
     url="http://localhost:11434",
     model_name="qwen3-embedding:4b",
 )
 
-chroma_client = chromadb.PersistentClient(path="chroma_persistent_storage")
-collection_name = "document_qa_collection"
-collection = chroma_client.get_or_create_collection(
-    name=collection_name,
-    embedding_function=ollama_ef,
-)
+# chroma_client = chromadb.PersistentClient(path="chroma_persistent_storage")
+# collection_name = "document_qa_collection"
+# collection = chroma_client.get_or_create_collection(
+#     name=collection_name,
+#     embedding_function=ollama_ef,
+# )
 
-def query_documents(question, n_result=4): 
-    result = collection.query(query_texts=question, n_results=n_result)
-    relevant_chunks = [doc for sublist in result["documents"] for doc in sublist]
-    print("==== Returning relevant chunks ====")
-    return relevant_chunks
+def query_documents(question, n_results=4):
+    print("==== Generating embedding for query ====")
+    # 1. Embed the user's question using the same function
+    query_embedding = get_embedding(question)
+
+    print("==== Querying Supabase for relevant chunks ====")
+    try:
+        # 2. Call the RPC function created in Supabase
+        response = supabase.rpc(
+            "match_chunks",
+            {
+                "query_embedding": query_embedding,
+                "match_count": n_results,
+            },
+        ).execute()
+
+        # 3. Extract raw text from matched rows
+        relevant_chunks = [item["raw_text"] for item in response.data]
+        print("==== Returning relevant chunks ====")
+        return relevant_chunks
+
+    except Exception as e:
+        print(f"Error querying Supabase: {e}")
+        return []
 
 def _extract_json_payload(raw_text):
     if not raw_text:
