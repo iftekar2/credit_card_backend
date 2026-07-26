@@ -1,11 +1,15 @@
-from chromadb.utils import embedding_functions
-import ollama
+import os
 import re
+
+import ollama
+from chromadb.utils import embedding_functions
 from dotenv import load_dotenv
 from supabase import create_client
-import os
-from component.generate_embedding import get_embedding
 
+try:
+    from .generate_embedding import get_embedding
+except ImportError:
+    from generate_embedding import get_embedding
 
 load_dotenv()
 
@@ -19,21 +23,12 @@ ollama_ef = embedding_functions.OllamaEmbeddingFunction(
     model_name="qwen3-embedding:4b",
 )
 
-# chroma_client = chromadb.PersistentClient(path="chroma_persistent_storage")
-# collection_name = "document_qa_collection"
-# collection = chroma_client.get_or_create_collection(
-#     name=collection_name,
-#     embedding_function=ollama_ef,
-# )
-
 def query_documents(question, n_results=4):
     print("==== Generating embedding for query ====")
-    # 1. Embed the user's question using the same function
     query_embedding = get_embedding(question)
 
     print("==== Querying Supabase for relevant chunks ====")
     try:
-        # 2. Call the RPC function created in Supabase
         response = supabase.rpc(
             "match_chunks",
             {
@@ -42,7 +37,6 @@ def query_documents(question, n_results=4):
             },
         ).execute()
 
-        # 3. Extract raw text from matched rows
         relevant_chunks = [item["raw_text"] for item in response.data]
         print("==== Returning relevant chunks ====")
         return relevant_chunks

@@ -43,10 +43,10 @@ def pdf_to_clean_txt(file_path: str) -> str:
     return clean_extracted_text(raw_text)
 
 
-cleaned_text = pdf_to_clean_txt("./card_details/Chase Sapphire Preferred Credit Card _ Chase.com.pdf")
+cleaned_text = pdf_to_clean_txt("./card_details/Sapphire Reserve for Business Credit Card _ Chase.com.pdf")
 
 with open(
-    "./card_details/Chase Sapphire Preferred Credit Card _ Chase.com.txt", "w", encoding="utf-8"
+    "./card_details/Sapphire Reserve for Business Credit Card _ Chase.com.txt", "w", encoding="utf-8"
 ) as f:
     f.write(cleaned_text)
 
