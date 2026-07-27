@@ -78,6 +78,7 @@ def save_chunks_to_supabase(processed_chunks, card_id: str, table_name="card_chu
         records_to_insert.append(
             {
                 "card_id": card_id,
+                "card_name": card_name, 
                 "raw_text": raw_text,
                 "embedding": embedding_vector,
             }

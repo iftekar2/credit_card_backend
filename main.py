@@ -54,6 +54,7 @@ def main():
         print(
             f"Credit Score:  {card_data.get('credit_score_min')} - {card_data.get('credit_score_max')}"
         )
+        print(f"signup Bonus Value:   {card_data.get('signup_bonus_value')}")
         print(f"Bonus Value:   {card_data.get('signup_bonus_value')}")
         print(f"Bonus Req:     {card_data.get('signup_bonus_requirements')}")
         print(
