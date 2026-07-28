@@ -53,6 +53,17 @@ from scrapegraphai.graphs import SmartScraperGraph
 #     other_features: List[str] = Field(default_factory=list, description="Other perks like Pay Over Time, 24/7 Concierge, Credit Journey")
 
 
+class FastCreditCardDetails(BaseModel):
+    card_name: str = Field(description="Full name of the card")
+    issuer: str = Field(description="Issuing bank")
+    annual_fee: str = Field(description="Annual fee")
+    welcome_bonus: str = Field(description="Summary of welcome offer, spend requirement, and timeframe")
+    rewards_summary: List[str] = Field(description="List of point multipliers and categories (e.g. '5x on Chase Travel')")
+    perks_and_credits: List[str] = Field(description="List of key credits like hotel credits, DoorDash, Peloton, TSA PreCheck")
+    transfer_partners: List[str] = Field(description="List of airline and hotel transfer partners")
+    insurance_and_protections: List[str] = Field(description="List of travel/purchase protections with coverage limits")
+
+
 # 2. ScrapeGraphAI Config
 graph_config = {
     "llm": {
@@ -77,6 +88,7 @@ smart_scraper_graph = SmartScraperGraph(
     prompt=prompt,
     source="https://creditcards.chase.com/rewards-credit-cards/sapphire/preferred?CELL=6TKX",
     # schema=CreditCardDetails,
+    schema=FastCreditCardDetails,
     config=graph_config
 )
 
