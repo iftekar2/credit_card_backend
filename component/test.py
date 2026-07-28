@@ -1,76 +1,56 @@
 import json
-from typing import List, Optional
-from pydantic import BaseModel, Field
 from scrapegraphai.graphs import SmartScraperGraph
 
-# 1. Define structured Pydantic models for nested card details
-# class WelcomeBonus(BaseModel):
-#     points_or_cash: str = Field(description="The bonus amount, e.g., '75,000 points'")
-#     spend_requirement: str = Field(description="Required spend amount, e.g., '$5,000'")
-#     timeframe: str = Field(description="Timeframe to reach spend, e.g., 'first 3 months'")
-#     offer_end_date: Optional[str] = Field(None, description="Offer end date or notice if applicable")
+# Define prompt with explicit instructions for exhaustive detail
+prompt = """
+Analyze the webpage text and extract EVERY SINGLE detail about the credit card into a clean, comprehensive, fully expanded JSON object.
 
-# class PricingAndFees(BaseModel):
-#     annual_fee: str = Field(description="Annual fee amount, e.g., '$95'")
-#     apr_range: str = Field(description="Regular purchase APR range, e.g., '19.24%–27.49% variable'")
-#     foreign_transaction_fee: str = Field(description="Foreign transaction fee, e.g., '0%' or '$0'")
+Do NOT summarize, abbreviate, or merge items into general lists. Extract every numerical limit, date, restriction, and brand mentioned on the page using the following target structure:
 
-# class RewardMultiplier(BaseModel):
-#     category: str = Field(description="Category name, e.g., 'Travel', 'Dining', 'Gas'")
-#     multiplier: str = Field(description="E.g., '5x', '3x', '1x'")
-#     notes_or_exclusions: Optional[str] = Field(None, description="E.g., 'purchased through Chase Travel'")
+1. CARD BASICS:
+   - "card_name": Exact full card name
+   - "issuer": Issuing bank
+   - "network": Card network
+   - "annual_fee": Full details including intro waiver terms or pricing conditions
+   - "apr_details": APR ranges, variable status, and intro APR if applicable
+   - "foreign_transaction_fee": Exact fee amount or percentage
 
-# class FlexibleCredit(BaseModel):
-#     name: str = Field(description="Name of the credit, e.g., '$100 Chase Travel Hotel Credit'")
-#     amount: str = Field(description="Dollar value or benefit frequency, e.g., '$100 annually'")
-#     details: str = Field(description="Conditions to receive or use the credit")
+2. WELCOME OFFER:
+   - "bonus_amount": Points, cash, or miles offered
+   - "spend_requirement": Exact spend required to unlock bonus
+   - "timeframe": Time period given
+   - "offer_expiration": Expiration date or urgency notes
+   - "eligibility_rules": Any explicit restrictions on past cardholders
 
-# class PartnerPerk(BaseModel):
-#     partner_name: str = Field(description="e.g., 'DoorDash', 'Lyft', 'Peloton'")
-#     benefit: str = Field(description="Details of the benefit or rate")
-#     expiration_date: Optional[str] = Field(None, description="Expiration date if noted")
+3. REWARD MULTIPLIERS (List EVERY multiplier explicitly):
+   - Category name, multiplier rate (5x, 3x, 2x, 1x), specific inclusions/exclusions
 
-# class TravelPartner(BaseModel):
-#     partner_type: str = Field(description="'Airline' or 'Hotel'")
-#     program_name: str = Field(description="Name of the loyalty program")
+4. STATEMENT CREDITS & DIRECT BENEFITS (List EVERY credit explicitly):
+   - Credit name, dollar amount, renewal frequency, terms
 
-# class InsuranceCoverage(BaseModel):
-#     benefit_name: str = Field(description="e.g., 'Trip Cancellation Insurance', 'Primary Auto Rental Coverage'")
-#     max_coverage_limit: Optional[str] = Field(None, description="e.g., '$10,000 per traveler'")
-#     summary: str = Field(description="Brief explanation of what is covered")
+5. PARTNER PERKS & PROMOTIONS (List ALL partners individually):
+   - Partner name, exact offer details, expiration dates, valuation notes
 
-# class CreditCardDetails(BaseModel):
-#     card_name: str = Field(description="Full official name of the card")
-#     issuer: str = Field(description="Issuing bank, e.g., 'Chase'")
-#     network: Optional[str] = Field(None, description="e.g., 'Visa', 'Mastercard', 'Amex'")
-#     welcome_bonus: Optional[WelcomeBonus] = None
-#     pricing_and_fees: PricingAndFees
-#     reward_multipliers: List[RewardMultiplier] = Field(default_factory=list)
-#     credits: List[FlexibleCredit] = Field(default_factory=list)
-#     partner_perks: List[PartnerPerk] = Field(default_factory=list)
-#     transfer_partners: List[TravelPartner] = Field(default_factory=list)
-#     insurance_and_protections: List[InsuranceCoverage] = Field(default_factory=list)
-#     other_features: List[str] = Field(default_factory=list, description="Other perks like Pay Over Time, 24/7 Concierge, Credit Journey")
+6. POINT TRANSFER PARTNERS (List EVERY partner individually):
+   - Airline Partners: List all individual airline loyalty program names
+   - Hotel Partners: List all individual hotel loyalty program names
 
+7. INSURANCE & TRAVEL PROTECTIONS (List EVERY insurance policy explicitly):
+   - Benefit name, exact coverage limit, covered conditions
 
-class FastCreditCardDetails(BaseModel):
-    card_name: str = Field(description="Full name of the card")
-    issuer: str = Field(description="Issuing bank")
-    annual_fee: str = Field(description="Annual fee")
-    welcome_bonus: str = Field(description="Summary of welcome offer, spend requirement, and timeframe")
-    rewards_summary: List[str] = Field(description="List of point multipliers and categories (e.g. '5x on Chase Travel')")
-    perks_and_credits: List[str] = Field(description="List of key credits like hotel credits, DoorDash, Peloton, TSA PreCheck")
-    transfer_partners: List[str] = Field(description="List of airline and hotel transfer partners")
-    insurance_and_protections: List[str] = Field(description="List of travel/purchase protections with coverage limits")
+8. ADDITIONAL FEATURES:
+   - Pay Over Time options, concierges, security monitoring, digital wallet support
 
+Return ONLY a valid, raw JSON object.
+"""
 
-# 2. ScrapeGraphAI Config
 graph_config = {
     "llm": {
         "model": "ollama/qwen3:8b",
         "temperature": 0,
+        "format": "json",
         "base_url": "http://localhost:11434",
-        "model_tokens": 8192 # <--- Fixes the token warning
+        "model_tokens": 8192
     },
     "embeddings": {
         "model": "ollama/qwen3-embedding:4b",
@@ -78,21 +58,17 @@ graph_config = {
     }
 }
 
-prompt = (
-    "Extract all credit card information into the exact provided schema. "
-    "Be precise and ensure no rewards, insurance limits, fees, or partner list items are omitted."
-)
-
-# 3. Pass the Pydantic schema into SmartScraperGraph
 smart_scraper_graph = SmartScraperGraph(
     prompt=prompt,
     source="https://creditcards.chase.com/rewards-credit-cards/sapphire/preferred?CELL=6TKX",
-    # schema=CreditCardDetails,
-    schema=FastCreditCardDetails,
     config=graph_config
 )
 
 result = smart_scraper_graph.run()
 
-# 4. Print clean JSON output
-print(json.dumps(result, indent=4))
+# Display formatted JSON output
+if isinstance(result, str):
+    parsed = json.loads(result)
+    print(json.dumps(parsed, indent=4))
+else:
+    print(json.dumps(result, indent=4))
