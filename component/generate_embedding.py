@@ -2,6 +2,8 @@ import os
 from chromadb.utils import embedding_functions
 from dotenv import load_dotenv
 from supabase import create_client
+import re
+
 
 load_dotenv()
 
@@ -93,25 +95,36 @@ def save_chunks_to_supabase(processed_chunks, card_id: str, table_name="card_chu
         supabase.table(table_name).insert(batch).execute()
 
 
+def normalize_card_name(name: str) -> str:
+    if not name:
+        return ""
+
+    cleaned = re.sub(r"[®™©]", "", name)
+    cleaned = re.sub(r"\s+", " ", cleaned).strip()
+
+    return cleaned.title()
+
+
 def get_or_create_card_id(card_name: str, issuer: str = "Unknown") -> str | None:
+    clean_name = normalize_card_name(card_name)
 
     try:
         response = (
             supabase.table("credit_cards")
             .select("id")
-            .eq("card_name", card_name)
+            .ilike("card_name", clean_name)
             .execute()
         )
 
         if response.data and len(response.data) > 0:
             card_id = response.data[0]["id"]
-            print(f" Found existing card_id for '{card_name}': {card_id}")
+            print(f" Found existing card_id for '{clean_name}': {card_id}")
             return card_id
 
-        print(f" Creating new card entry for '{card_name}'...")
+        print(f" Creating new card entry for '{clean_name}'...")
         insert_res = (
             supabase.table("credit_cards")
-            .insert({"card_name": card_name, "issuer": issuer})
+            .insert({"card_name": clean_name, "issuer": issuer})
             .execute()
         )
 

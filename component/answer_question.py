@@ -1,6 +1,5 @@
 import os
 import re
-
 import ollama
 from chromadb.utils import embedding_functions
 from dotenv import load_dotenv
@@ -23,7 +22,7 @@ ollama_ef = embedding_functions.OllamaEmbeddingFunction(
     model_name="qwen3-embedding:4b",
 )
 
-def query_documents(question, n_results=4):
+def query_documents(question: str, n_results: int = 4) -> list[str]:
     print("==== Generating embedding for query ====")
     query_embedding = get_embedding(question)
 
@@ -38,14 +37,14 @@ def query_documents(question, n_results=4):
         ).execute()
 
         relevant_chunks = [item["raw_text"] for item in response.data]
-        print("==== Returning relevant chunks ====")
+        print(f"==== Found {len(relevant_chunks)} relevant chunks ====")
         return relevant_chunks
 
     except Exception as e:
         print(f"Error querying Supabase: {e}")
         return []
 
-def _extract_json_payload(raw_text):
+def _clean_json_output(raw_text: str) -> str:
     if not raw_text:
         return "{}"
 
@@ -60,31 +59,38 @@ def _extract_json_payload(raw_text):
     return cleaned
 
 
-def generate_response(question, relevant_chunks):
+def generate_response(question: str, relevant_chunks: list[str]) -> str:
     context = "\n\n".join(relevant_chunks)
 
     system_instruction = (
-        "You are a structured data extraction model. Extract credit card details "
-        "from the context into a single valid JSON object. Output strictly JSON.\n\n"
-        "KEYS & EXPECTED FORMATS:\n"
-        '- "card_name": string\n'
-        '- "issuer": string\n'
-        '- "card_type": string\n'
-        '- "annual_fee": number\n'
-        '- "credit_score_min": number or null\n'
-        '- "credit_score_max": number or null\n'
-        '- "signup_bonus_value": string\n'
-        '- "signup_bonus_requirements": string\n'
-        '- "reward_categories": array of objects [{"category": str, "multiplier": float}]\n'
-        '- "perks": array of strings (e.g. ["No foreign transaction fees", "Trip Cancellation Insurance", "$100 Hotel Credit"]). Extract ALL travel protections, statement credits, DashPass, and insurance benefits mentioned.\n\n'
-        "RULES:\n"
-        "1. Look thoroughly through the provided context.\n"
-        "2. Do not invent details not present in context.\n"
-        "3. If perks or credit scores are not mentioned in context, return empty array [] or null."
+        "You are an expert financial data structure engine. Extract credit card details "
+        "strictly from the provided text and format it into a single, valid JSON object.\n\n"
+        "REQUIRED JSON SCHEMA:\n"
+        "{\n"
+        '  "card_name": "string (e.g., Chase Sapphire Preferred)",\n'
+        '  "issuer": "string (e.g., Chase, American Express, Citi)",\n'
+        '  "card_type": "string (e.g., Personal, Business)",\n'
+        '  "annual_fee": number or null (numeric value only, e.g. 95, 0),\n'
+        '  "credit_score_min": number or null (e.g. 670),\n'
+        '  "credit_score_max": number or null (e.g. 850),\n'
+        '  "signup_bonus_value": "string or null (e.g. 60,000 bonus points)",\n'
+        '  "signup_bonus_requirements": "string or null (e.g. Spend $4,000 in first 3 months)",\n'
+        '  "foreign_transactions": "string or null (e.g. No foreign transaction fees )",\n'
+        '  "card_type": "Personal or Business",\n'
+        '  "reward_categories": [\n'
+        '    {"category": "string", "multiplier": float}\n'
+        "  ],\n"
+        '  "perks": ["string (e.g., $50 Hotel Credit, No foreign transaction fees)"]\n'
+        "}\n\n"
+        "CRITICAL RULES:\n"
+        "1. Convert currency strings for annual_fee to raw numbers (e.g., '$95' -> 95, '$0' -> 0).\n"
+        "2. Do NOT invent details not present in context.\n"
+        "3. If a field is unknown or not mentioned, return null (or [] for arrays)."
     )
 
-    user_payload = f"Context:\n{context}\n\nQuestion:\n{question}"
+    user_payload = f"Context Material:\n{context}\n\nUser Question:\n{question}"
 
+    print("Processing context with qwen3:8b...")
     response = ollama.chat(
         model="qwen3:8b",
         messages=[
@@ -92,7 +98,7 @@ def generate_response(question, relevant_chunks):
             {"role": "user", "content": user_payload},
         ],
         format="json",
-        options={"temperature": 0, "seed": 42},
+        options={"temperature": 0.0, "seed": 42},
     )
 
-    return _extract_json_payload(response["message"]["content"])
+    return _clean_json_output(response["message"]["content"])
