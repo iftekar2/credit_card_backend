@@ -5,7 +5,7 @@
  - Earn more than ever, same low annual fee.
 
 3: Card Offer: 
- - Earn 75,000 (strike through --> Meaning it was 75,000 points before now 100,000 points) 100,000 points
+ - Earn 75,000
 
 4: How to qualify for the points: 
  - after you spend $5,000 in purchases in the first 3 months from account opening.
@@ -181,3 +181,61 @@ Delivery of alerts may be delayed for various reasons including technology failu
       - Keep in mind: 
          Even though you may have an eligible card, access to Chase Pay Over Time is not guaranteed. Your ability to create a Chase Pay Over Time plan is based on a variety of factors, such as your creditworthiness, credit limit and account behavior, and may change from time to time.
          For more information on Chase Pay Over Time features, please visit chase.com/chasepayovertimeOpens in a new window.
+
+Pricing Information:
+
+   Interest Rates and Interest Charges: 
+      Purchase Annual Percentage Rate (APR): 
+         - 0% Intro APR for the first 15 months that your Account is open.
+         - After that, 18.24% to 27.74%, based on your creditworthiness and other factors. These APRs will vary with the market based on the Prime Rate.a
+
+      My Chase LoanSM APR
+         - 18.24% to 27.74%, based on your creditworthiness and other factors. These APRs will vary with the market based on the Prime Rate.a
+         - Promotional offers with fixed APRs and varying durations may be available from time to time on some accounts.
+
+      Balance Transfer APR: 
+         - 0% Intro APR for the first 15 months that your Account is open.
+         - After that, 18.24% to 27.74%, based on your creditworthiness and other factors. These APRs will vary with the market based on the Prime Rate.a
+
+      Cash Advance APR: 28.49%. This APR will vary with the market based on the Prime Rate.
+
+      Penalty APR and When It Applies: 
+         - Up to 29.99%. This APR will vary with the market based on the Prime Rate.c
+         - We may apply the Penalty APR to your account if you:
+            - fail to make a Minimum Payment by the date and time that it is due; or
+            - make a payment to us that is returned unpaid.
+         - How Long Will the Penalty APR Apply?: If we apply the Penalty APR for either of these reasons, the Penalty APR could potentially remain in effect indefinitely.
+      How to Avoid Paying Interest on Purchases: 
+         - Your due date will be a minimum of 21 days after the close of each billing cycle. We will not charge you interest on new purchases if you pay your entire balance or Interest Saving Balance by the due date each month. We will begin charging interest on balance transfers and cash advances on the transaction date.
+      Minimum Interest Charge: None
+      Credit Card Tips from the Consumer Financial Protection Bureau: To learn more about factors to consider when applying for or using a credit card, visit the website of the Consumer Financial Protection Bureau at http://www.consumerfinance.gov/learnmore.
+
+   Fees
+
+      Annual Membership Fee: None
+
+      Chase Pay Over TimeSM Fee (formerly My Chase Plan® Fee; a fixed finance charge):
+         - Monthly fee of 0% of the amount of each eligible purchase transaction or amount selected to create a Chase Pay Over Time plan while in the 0% Intro Purchase APR period.
+         - After that, monthly fee of up to 1.72% of the amount of each eligible purchase transaction or amount you select to pay over time with no interest, just a fixed monthly fee.
+         - Promotional offers with lower monthly Chase Pay Over Time fees may be available from time to time on some accounts.
+         - The monthly Chase Pay Over Time fee will be determined each time a fee-based plan is created and will remain the same until the plan balance is paid in full.d
+
+      Transaction Fees
+         - Balance Transfers: Intro fee of either $5 or 3% of the amount of each transfer, whichever is greater, on transfers made within 60 days of account opening. After that: Either $5 or 5% of the amount of each transfer, whichever is greater.
+         - Cash Advances: Either $10 or 5% of the amount of each transaction, whichever is greater.
+         - Foreign Transactions: 3% of the amount of each transaction in U.S. dollars.
+
+      Penalty Fees
+         - Late Payment: Up to $40.
+         - Over-the-Credit-Limit: None
+         - Return Payment: Up to $40.
+         - Return Check: None
+
+Note: This account may not be eligible for balance transfers.
+Loss of Intro APR: We will end your introductory APR if any required Minimum Payment is 60 days late, and apply the Penalty APR.
+How We Will Calculate Your Balance: We use the daily balance method (including new transactions).
+Prime Rate: Variable APRs are based on the 6.75% Prime Rate as of 12/16/2025.
+We add 11.49% to 20.99% to the Prime Rate to determine the Purchase/My Chase Loan/Balance Transfer APR. Maximum APR 29.99%.
+We add 21.74% to the Prime Rate to determine the Cash Advance APR. Maximum APR 29.99%.
+We add up to 26.99% to the Prime Rate to determine the Penalty APR. Maximum APR 29.99%.
+Chase Pay Over Time Fee. The Chase Pay Over Time Fee (formerly called the My Chase Plan Fee) is calculated at the time each plan is created, and is based on the amount of each purchase transaction or account balance selected to create the plan, the number of billing periods over which you choose to pay the balance in full, and other factors. The monthly and aggregate dollar amount of your Chase Pay Over Time Fee will be disclosed during the activation of each plan. Chase Pay Over Time plan balances that have a Chase Pay Over Time Fee will not be subject to interest after plan activation.
