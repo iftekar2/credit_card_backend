@@ -1,5 +1,6 @@
 1: Card name: 
  - Chase Sapphire Preferred® Credit Card
+ - Card type: Rewards cards
 
 2: Card slogan: 
  - Earn more than ever, same low annual fee.
