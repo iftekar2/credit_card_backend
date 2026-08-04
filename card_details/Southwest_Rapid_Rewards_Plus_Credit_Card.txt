@@ -1,4 +1,5 @@
-Southwest Rapid Rewards® Plus Credit Card:
+Southwest Rapid Rewards Plus Credit Card:
+    Card type: Travel cards
     Earn: 50,000 bonus points 
     2X: points on Southwest Airlines purchases and on the first $5,000 in combined purchases at gas stations and grocery stores per year 
     1X points on all other purchases 
