@@ -1,5 +1,6 @@
 Ink Business Unlimited Credit Card: 
     Card type: Travel cards 
+
     NEW CARDMEMBER OFFER: 
         - Earn $1,000 cash back after you spend $8,000 on purchases in the first 4 months after account opening. Opens offer details overlay
 
@@ -7,7 +8,7 @@ Ink Business Unlimited Credit Card:
         - Unlimited 1.5% cash back on every purchase.
     
     APR: 
-        0% intro APR for 12 months from account opening on purchases. Opens pricing and terms in new window After that, 16.74%–24.74% variable APR. Opens pricing and terms in new window
+        - 0% intro APR for 12 months from account opening on purchases. Opens pricing and terms in new window After that, 16.74%–24.74% variable APR. Opens pricing and terms in new window
 
     ANNUAL FEE: $0
 
@@ -84,7 +85,6 @@ Ink Business Unlimited Credit Card:
         Chase Pay Over Time Opens overlay: 
             Chase Pay Over Time lets eligible Chase business card customers break up credit card expenses into manageable payments. Pay off an eligible purchase you've already made of $100 or more in smaller, equal monthly payments. No interest - just a fixed monthly fee with plan durations that range from 3-24 months. Start a plan by selecting an eligible purchase with the "Pay Over Time eligible" option next to the transaction amount in your credit card account activity.
             Keep in mind: Even though you may have an eligible card, access to Chase Pay Over Time is not guaranteed. Your ability to create a Chase Pay Over Time plan is based on a variety of factors, such as your creditworthiness, credit limit and account behavior, and may change from time to time.
-
 
     Pricing Information: : 
         Interest Rates and Interest Charges: 
